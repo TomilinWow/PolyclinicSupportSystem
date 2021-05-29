@@ -4,6 +4,7 @@ from filter import Filter
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from datetime import *
+from CreateTable import CreateTable
 
 class Specialist(QMainWindow, specialist_ui.SpecialistUi):
     def __init__(self, parent, connection, login):
@@ -77,7 +78,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         Заполнение таблицы записями пациентов
         """
         self.change_window()
-        count = 0
+
         cursor = self.connection.cursor()
         if state_table == 0:
             cursor.execute("SELECT * FROM list_of_records_var_1") # view
@@ -89,24 +90,11 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
             cursor.execute("SELECT * FROM list_of_records_ver_3")  # view
 
         elif state_table == 3:
-            cursor.execute('call show_records_beetween(%s, %s)',
+            cursor.execute('call show_records_between(%s, %s)',
                            (first_date, second_date)) # procedure
 
-        j = 0
-        self.table_3.setRowCount(0)
-        self.table_3.setColumnCount(5)
-        self.table_3.insertRow(0)
-
-        row = cursor.fetchone()
-        while row is not None:
-            mass = list(row.items())
-            for i in range(len(mass)):
-                item = QTableWidgetItem()
-                item.setText(str(mass[i][1]))
-                self.table_3.setItem(j, i, item)
-            j += 1
-            self.table_3.insertRow(j)
-            row = cursor.fetchone()
+        create_table = CreateTable(self.table_3, cursor, 5)
+        create_table.set_table()
 
     def show_filter(self):
         """
