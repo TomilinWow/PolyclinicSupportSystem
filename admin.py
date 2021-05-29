@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QDialog
 from PyQt5.QtCore import Qt
 import sys
 import admin_ui
+from CreateTable import CreateTable
 import time
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -127,59 +128,47 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         Заполнение таблицы со специалистами
         """
         cursor = self.connection.cursor()
-        cursor.execute("SELECT count(specialist_num) from specialist")
-        count = cursor.fetchall()[0].get('count(specialist_num)')
-        self.table_3.setColumnCount(8)
-        self.table_3.setRowCount(count)
-        for i in range(1, count + 1):
-            cursor.execute("SELECT specialist_name, "
-                            "specialist_surname, specialist_patronymic, "
-                            "specialist_date, specialist_login, "
-                            "specialist_password, salary_salary_num FROM specialist WHERE specialist_num = %s", (i))
-            dict = cursor.fetchall()[0]
-            dict_2 = list(dict.items())
-            # запрос на ЗП
-            cursor.execute("SELECT salary FROM salary where salary_num = %s", (dict.get('salary_salary_num')))
+        cursor.execute("SELECT * from list_of_specialist")
+        self.create_table = CreateTable(self.table_3, cursor, 8)
+        self.create_table.set_table()
 
-            # заполнение таблицы специалистов
-            for j in range(0, len(dict) - 1):
-                item = QTableWidgetItem()
-                item.setText(str(dict_2[j][1]))
-                self.table_3.setItem(i-1, j, QTableWidgetItem(item))
-
-            item = QTableWidgetItem()
-            item.setText(cursor.fetchall()[0].get('salary'))
-            self.table_3.setItem(i-1, 7, item)
 
     def add_specialist(self):
         """
         Добавление нового специалиста в БД
         """
         self.cursor = self.connection.cursor()
+
         # Первоначальная ЗП
-        self.cursor.execute("INSERT INTO salary (salary) values (%s)", (self.line_3.text()))
-        self.connection.commit()
         self.cursor.execute("SELECT count(salary_num) from salary")
         count = self.cursor.fetchall()[0].get('count(salary_num)')
+        self.cursor.execute("INSERT INTO salary (salary_num, salary) values (%s, %s)", (count+1, self.line_3.text()))
+        self.connection.commit()
 
         # Добавление специалиста
-        self.cursor.execute("INSERT INTO specialist (specialist_name, "
+        self.cursor.execute("INSERT INTO specialist (specialist_num, specialist_name, "
                             "specialist_surname, specialist_patronymic, "
                             "specialist_date, specialist_login, "
-                            "specialist_password, salary_salary_num) values (%s, %s, %s, %s, %s, %s, %s)",
-                            (self.line_2.text(),
+                            "specialist_password, salary_salary_num) values (%s, %s, %s, %s, %s, %s, %s, %s)",
+                            (count + 1,
+                            self.line_2.text(),
                              self.line_5.text(),
                              self.line.text(),
                              self.line_8.text(),
                              self.line_7.text(),
                              self.line_6.text(),
-                             count)
+                             count + 1)
                             )
 
         self.connection.commit()
         self.label_34.setText("Специалист добавлен")
         self.cursor.execute("SELECT count(specialist_num) from specialist")
         count_specialist = self.cursor.fetchall()[0].get('count(specialist_num)')
+
+        # добавление аккаунта в user
+        self.cursor.execute("INSERT INTO user (user_login, user_password, type) values(%s, %s, %s)",
+                            (self.line_7.text(), self.line_6.text(), 1))
+        self.connection.commit()
 
         # блок для соответствия специальностей с сотрудником
         mass = self.list_specialty()
