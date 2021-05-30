@@ -1,4 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QCompleter
+from PyQt5.QtCore import Qt
 
 
 class PatientUi(object):
@@ -26,7 +28,7 @@ class PatientUi(object):
 "}")
         self.btn_36.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../images/Home-2-2-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("images/Home-2-2-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_36.setIcon(icon)
         self.btn_36.setIconSize(QtCore.QSize(23, 23))
         self.btn_36.setObjectName("btn_36")
@@ -47,7 +49,7 @@ class PatientUi(object):
 "}")
         self.btn_12.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../../mysqlproject/images/medicine.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("images/medicine.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_12.setIcon(icon1)
         self.btn_12.setIconSize(QtCore.QSize(50, 50))
         self.btn_12.setObjectName("btn_12")
@@ -120,7 +122,7 @@ class PatientUi(object):
 "}")
         self.btn_69.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../images/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("images/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_69.setIcon(icon2)
         self.btn_69.setIconSize(QtCore.QSize(30, 30))
         self.btn_69.setObjectName("btn_69")
@@ -199,7 +201,7 @@ class PatientUi(object):
 "}")
         self.btn_20.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("../images/Icons8-Ios7-Arrows-Back.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("images/Icons8-Ios7-Arrows-Back.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_20.setIcon(icon3)
         self.btn_20.setObjectName("btn_20")
         self.horizontalLayout_52.addWidget(self.btn_20)

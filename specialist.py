@@ -3,7 +3,6 @@ from ui_py import specialist_ui
 from filter import Filter
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import *
-from datetime import *
 from create_table import CreateTable
 
 class Specialist(QMainWindow, specialist_ui.SpecialistUi):
@@ -15,11 +14,13 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.login = login
         self.stackedWidget.setCurrentIndex(1)
         self.get_id()
+
         #события сортировки списка пациентов
         self.btn_2.clicked.connect(self.create_table_ver_1)
         self.btn_62.clicked.connect(self.create_table_ver_2)
         self.btn_63.clicked.connect(self.create_table_ver_3)
         self.btn_8.clicked.connect(self.create_list_records)
+
         # кнопки для смены окон
         self.btn_9.clicked.connect(self.change_window)
         self.btn_10.clicked.connect(self.change_window)
@@ -29,6 +30,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.btn_5.clicked.connect(self.change_window)
         self.btn_39.clicked.connect(self.change_window)
         self.btn_38.clicked.connect(self.change_window)
+
         # возврат на начальное меню
         self.btn_19.clicked.connect(self.back)
         self.btn_21.clicked.connect(self.back)
@@ -49,7 +51,6 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         cursor = self.connection.cursor()
         cursor.execute("SELECT specialist_num from specialist where specialist_login = %s", self.login)
         self.specialist_id = cursor.fetchall()[0].get('specialist_num')
-        print(self.specialist_id)
 
     def create_table_ver_1(self):
         """
@@ -91,7 +92,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
 
         elif state_table == 3:
             cursor.execute('call show_records_between(%s, %s)',
-                           (first_date, second_date)) # procedure
+                           (first_date, second_date))              # procedure
 
         create_table = CreateTable(self.table_3, cursor, 5)
         create_table.set_table()
@@ -140,3 +141,6 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
             self.back()
+
+
+

@@ -17,14 +17,18 @@ class Admin(QMainWindow, admin_ui.AdminUi):
 
         #обновление окон специалистов и специальностей
         self.tabWidget.currentChanged.connect(self.update_window)
+
         #переключение между специалистами и пациентами(меню)
         self.btn_2.clicked.connect(self.change_window)
         self.btn_3.clicked.connect(self.change_window)
+
         #возврат на авторизацию
         self.btn.clicked.connect(self.return_back)
+
         #смена содержимого окна (специальности, специалисты)
         self.btn_8.clicked.connect(self.change_window)
         self.btn_11.clicked.connect(self.change_window)
+
         #смена внутреннего tabwidget
         self.btn_5.clicked.connect(self.update_tabwidget)
         self.btn_6.clicked.connect(self.update_tabwidget)
@@ -32,17 +36,21 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         self.btn_10.clicked.connect(self.update_tabwidget)
         self.btn_14.clicked.connect(self.update_tabwidget)
         self.btn_13.clicked.connect(self.update_tabwidget)
+
         #кнопка назад
         self.btn_19.clicked.connect(self.back)
         self.btn_20.clicked.connect(self.back)
         self.btn_21.clicked.connect(self.back)
         self.btn_22.clicked.connect(self.back)
+
         #добавление записей в бд
         self.btn_7.clicked.connect(self.add_specialty)
         self.line_33.textChanged.connect(self.clear_line_specialty)
         self.btn_4.clicked.connect(self.add_specialist)
+
         #кнопка показа специалистов
         self.btn_5.clicked.connect(self.show_specialist)
+
         # кнопка показа специальностей
         self.btn_9.clicked.connect(self.show_list_specialty)
 
@@ -127,10 +135,9 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         Заполнение таблицы со специалистами
         """
         cursor = self.connection.cursor()
-        cursor.execute("SELECT * from list_of_specialist")
+        cursor.execute("SELECT * from list_specialist")
         self.create_table = CreateTable(self.table_3, cursor, 8)
         self.create_table.set_table()
-
 
     def add_specialist(self):
         """

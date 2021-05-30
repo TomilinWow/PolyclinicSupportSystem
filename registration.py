@@ -38,14 +38,17 @@ class Registration(QDialog, registration_ui.RegistrationUi):
         self.cursor.execute("INSERT INTO patient (patient_num, patient_date, "
                             "patient_mail, patient_phone, "
                             "patient_name, patient_surname, "
-                            "patient_patronymic) values (%s, %s, %s, %s, %s, %s, %s)",
+                            "patient_patronymic, patient_login, "
+                            "patient_password) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             (count + 1,
                             self.line_8.text(),
                              self.line_7.text(),
                              self.line_4.text(),
                              self.line_2.text(),
                              self.line_5.text(),
-                             self.line.text())
+                             self.line.text(),
+                             self.line_6.text(),
+                             self.line_3.text())
                             )
 
         # добавление аккаунта в user
