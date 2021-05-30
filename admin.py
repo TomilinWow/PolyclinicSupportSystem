@@ -3,9 +3,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QDialog
 from PyQt5.QtCore import Qt
 import sys
-import admin_ui
-from CreateTable import CreateTable
-import time
+from ui_py import admin_ui
+from create_table import CreateTable
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 

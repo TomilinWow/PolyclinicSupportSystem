@@ -1,10 +1,10 @@
 from PyQt5.QtCore import Qt
-import specialist_ui
+from ui_py import specialist_ui
 from filter import Filter
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import *
 from datetime import *
-from CreateTable import CreateTable
+from create_table import CreateTable
 
 class Specialist(QMainWindow, specialist_ui.SpecialistUi):
     def __init__(self, parent, connection, login):
@@ -81,7 +81,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
 
         cursor = self.connection.cursor()
         if state_table == 0:
-            cursor.execute("SELECT * FROM list_of_records_var_1") # view
+            cursor.execute("SELECT * FROM list_of_records_ver_1") # view
 
         elif state_table == 1:
             cursor.execute("SELECT * FROM list_of_records_ver_2")  # view

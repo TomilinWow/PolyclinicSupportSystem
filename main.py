@@ -2,12 +2,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from PyQt5.QtCore import QPropertyAnimation
 import sys
-import ui
+from ui_py import ui
 import pymysql
 from admin import Admin
+from patient import Patient
 from specialist import Specialist
 from error import Error
 from PyQt5.QtCore import Qt
+from registration import Registration
+
 
 class MainWindow(QMainWindow, ui.Dialog):
     def __init__(self):
@@ -15,8 +18,10 @@ class MainWindow(QMainWindow, ui.Dialog):
         self.setupUi(self)
         self.connect_db()
         # self.clear_db()
-        self.pushButton_2.clicked.connect(self.close)
         self.pushButton.clicked.connect(self.check_user)
+        self.pushButton_2.clicked.connect(self.close)
+        self.pushButton_4.clicked.connect(self.window_reg)
+
 
     # def clear_db(self):
     #     """
@@ -27,14 +32,30 @@ class MainWindow(QMainWindow, ui.Dialog):
     #         cursor.execute("ALTER TABLE user AUTO_INCREMENT = 0")
     #         self.connection.commit()
     #
-    # def add(self):
-    #     """
-    #     Добавление записи в БД
-    #     """
-    #     self.cursor = self.connection.cursor()
-    #     self.cursor.execute("INSERT INTO user (user_num, user_login, "\
-    #                         "user_password, type) values (%s, %s, %s, %s)", (2, 'Tomilin', '', 1))
-    #     self.connection.commit()
+    def add(self):
+        """
+        Добавление записи в БД
+        """
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("INSERT INTO user (user_num, user_login, "\
+                            "user_password, type) values (%s, %s, %s, %s)", (1, 'Admin', '',0))
+        self.connection.commit()
+
+    def patient_window(self, login):
+        """
+        запуск окна пациента
+        """
+        self.patient = Patient(self, self.connection, login)
+        self.patient.show()
+        self.close()
+
+    def window_reg(self):
+        """
+        запуск окна регистрации пациента
+        """
+        self.registration = Registration(self, self.connection)
+        self.registration.show()
+        self.close()
 
     def check_user(self):
         """
@@ -57,8 +78,10 @@ class MainWindow(QMainWindow, ui.Dialog):
         if user_password == password:
             if type == 0:
                 self.admin_window()  # запуск окна Админа
-            else:
+            elif type == 1:
                 self.specialist_window(login)
+            else:
+                self.patient_window(login)
         else:
             self.error_window(1)
 

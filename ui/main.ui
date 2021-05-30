@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>402</height>
+    <width>627</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -148,7 +148,7 @@ QPushButton:hover{
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>../images/1487086345-cross_81577.png</normaloff>../images/1487086345-cross_81577.png</iconset>
+       <normaloff>../images/cross.png</normaloff>../images/cross.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -177,7 +177,7 @@ border: none;
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>../images/medicine_icon-icons.com_66070.png</normaloff>../images/medicine_icon-icons.com_66070.png</iconset>
+       <normaloff>../../project/images/medicine_icon-icons.com_66070.png</normaloff>../../project/images/medicine_icon-icons.com_66070.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -226,6 +226,30 @@ QLineEdit:hover{
      </property>
      <property name="placeholderText">
       <string>Введите пароль...</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_4">
+     <property name="geometry">
+      <rect>
+       <x>205</x>
+       <y>299</y>
+       <width>141</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	border: none;
+	color:rgb(163, 163, 163)
+}
+
+QPushButton:hover{
+	color: rgb(83, 83, 83)
+}</string>
+     </property>
+     <property name="text">
+      <string>Создать учетную запись
+пациента</string>
      </property>
     </widget>
    </widget>
