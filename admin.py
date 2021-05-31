@@ -5,29 +5,32 @@ from PyQt5.QtCore import Qt
 import sys
 from ui_py import admin_ui
 from create_table import CreateTable
+from filter_specialty import FilterSpecialty
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
-class Admin(QMainWindow, admin_ui.AdminUi):
+class Admin(QDialog, admin_ui.AdminUi):
     def __init__(self, parent, connection):
         super().__init__()
         self.setupUi(self)
+        self.stackedWidget_6.setCurrentIndex(1)
         self.parent = parent
         self.connection = connection
-
         #обновление окон специалистов и специальностей
         self.tabWidget.currentChanged.connect(self.update_window)
 
         #переключение между специалистами и пациентами(меню)
         self.btn_2.clicked.connect(self.change_window)
         self.btn_3.clicked.connect(self.change_window)
+        self.btn_15.clicked.connect(self.change_window)
 
         #возврат на авторизацию
-        self.btn.clicked.connect(self.return_back)
+        self.btn_36.clicked.connect(self.return_back)
 
         #смена содержимого окна (специальности, специалисты)
         self.btn_8.clicked.connect(self.change_window)
         self.btn_11.clicked.connect(self.change_window)
+
 
         #смена внутреннего tabwidget
         self.btn_5.clicked.connect(self.update_tabwidget)
@@ -53,6 +56,13 @@ class Admin(QMainWindow, admin_ui.AdminUi):
 
         # кнопка показа специальностей
         self.btn_9.clicked.connect(self.show_list_specialty)
+
+        # запуск фильтра
+        self.btn_64.clicked.connect(self.window_filter)
+
+    def window_filter(self):
+        self.filter = FilterSpecialty(self, self.connection)
+        self.filter.show()
 
 
     def list_specialty(self):
@@ -135,7 +145,7 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         Заполнение таблицы со специалистами
         """
         cursor = self.connection.cursor()
-        cursor.execute("SELECT * from list_specialist")
+        cursor.execute("SELECT * from list_specialist") # view
         self.create_table = CreateTable(self.table_3, cursor, 8)
         self.create_table.set_table()
 
@@ -195,7 +205,7 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         """
         Кнопка назад(возврат окна меню)
         """
-        if self.tabWidget.currentIndex() == 1:
+        if self.tabWidget.currentIndex() == 0:
             self.stackedWidget_2.setCurrentIndex(1)
         else:
             self.stackedWidget_3.setCurrentIndex(1)
@@ -205,7 +215,7 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         смена содержимого вкладки tabwidget
         """
         sender = self.sender().text()
-        if self.tabWidget.currentIndex() == 1:
+        if self.tabWidget.currentIndex() == 0:
             if sender == "Показать список\nспециалистов":
                 self.stackedWidget_2.setCurrentIndex(2)
             else:
@@ -232,9 +242,11 @@ class Admin(QMainWindow, admin_ui.AdminUi):
         sender = self.sender()
         self.stackedWidget_6.setCurrentIndex(0) # смена окна в GUI
         if sender.text() == "Специалисты":
-            self.stackedWidget.setCurrentIndex(0)
-        else:
             self.stackedWidget.setCurrentIndex(1)
+        elif sender.text() == "Пациенты":
+            self.stackedWidget.setCurrentIndex(2)
+        else:
+            self.stackedWidget.setCurrentIndex(0)
 
     def return_back(self):
         """

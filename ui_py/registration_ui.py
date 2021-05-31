@@ -301,7 +301,7 @@ class RegistrationUi(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Регистрация нового пациента"))
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label_2.setText(_translate("Dialog", "Имя:"))
         self.label_5.setText(_translate("Dialog", "Фамилия:"))
         self.label.setText(_translate("Dialog", "Отчество:"))

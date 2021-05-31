@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from ui_py import specialist_ui
 from filter import Filter
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QCompleter
 from PyQt5.QtCore import *
 from create_table import CreateTable
 
@@ -14,6 +14,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.login = login
         self.stackedWidget.setCurrentIndex(1)
         self.get_id()
+        self.set_completer()
 
         #события сортировки списка пациентов
         self.btn_2.clicked.connect(self.create_table_ver_1)
@@ -43,6 +44,81 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.btn_64.clicked.connect(self.show_filter)
         self.btn_65.clicked.connect(self.show_filter)
         self.btn_68.clicked.connect(self.show_filter)
+
+        self.btn_69.clicked.connect(self.patient_guide)
+        self.pushButton.clicked.connect(self.patient_guide)
+
+        self.line_5.textChanged.connect(self.fio_patient_line_1)
+        self.lineEdit.textChanged.connect(self.fio_patient_line_2)
+
+    def fio_patient_line_1(self):
+        self.fio = self.line_5.text()
+
+    def fio_patient_line_2(self):
+        self.fio = self.lineEdit.text()
+
+    def patient_id(self):
+        """
+        Заполнение окна пациента информацией о пациенте
+        """
+        fio = self.fio.split(" ")
+        cursor = self.connection.cursor()
+        cursor.execute('call rec_patient(%s, %s, %s)',
+                       (fio[0], fio[1], fio[2]))
+        dict = cursor.fetchall()[0]
+
+        self.label_3.setText(self.fio)
+        self.label_8.setText(dict.get('patient_date').strftime('%Y-%m-%d'))
+        self.label_11.setText(dict.get('patient_phone'))
+        self.label_6.setText(dict.get('patient_mail'))
+
+    def patient_guide(self):
+        """
+        Окно с информацией пациента
+        """
+        self.patient_id()
+        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget_2.setCurrentIndex(1)
+        cursor = self.connection.cursor()
+        cursor.execute('call records_patient(%s)',
+                       (self.specialist_id))
+        create_table = CreateTable(self.table_5, cursor, 2)
+        create_table.set_table()
+
+    def set_completer(self):
+        """
+        Заполнение выпадающего списка специалистами и специальностями из БД
+        """
+        words = []  # массив слов для QComleter
+        cursor = self.connection.cursor()
+        cursor.execute('call show_patients(%s)',
+                           (self.specialist_id)) # view
+
+        row = cursor.fetchone()
+        while row is not None:
+            word = ''
+            mass = list(row.items())
+            for i in range(len(mass)):
+                word += mass[i][1] + " "
+            words.append(word[:-1])
+            row = cursor.fetchone()
+        print(words)
+        completer = QCompleter(words, self.line_5)
+        self.line_5.setCompleter(completer)
+        completer = QCompleter(words, self.lineEdit)
+        self.lineEdit.setCompleter(completer)
+
+
+    def show_patient(self, state_table, first_date = None, second_date = None):
+        """
+        Заполнение таблицы записями пациентов
+        """
+        self.change_window()
+
+        cursor = self.connection.cursor()
+        if state_table == 0:
+            cursor.execute('call show_patients(%s)',
+                           (self.specialist_id))          # procedure
 
     def get_id(self):
         """
@@ -82,17 +158,17 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
 
         cursor = self.connection.cursor()
         if state_table == 0:
-            cursor.execute("SELECT * FROM list_of_records_ver_1") # view
-
+            cursor.execute('call list_of_records_1(%s)',
+                           (self.specialist_id))          # procedure
         elif state_table == 1:
-            cursor.execute("SELECT * FROM list_of_records_ver_2")  # view
-
+            cursor.execute('call list_of_records_2(%s)',
+                           (self.specialist_id))   # procedure
         elif state_table == 2:
-            cursor.execute("SELECT * FROM list_of_records_ver_3")  # view
-
+            cursor.execute('call list_of_records_3(%s)',
+                           (self.specialist_id))   # procedure
         elif state_table == 3:
-            cursor.execute('call show_records_between(%s, %s)',
-                           (first_date, second_date))              # procedure
+            cursor.execute('call show_records_between_datetime(%s, %s, %s)',
+                           (first_date, second_date, self.specialist_id))              # procedure
 
         create_table = CreateTable(self.table_3, cursor, 5)
         create_table.set_table()

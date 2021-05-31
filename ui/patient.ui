@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>948</width>
-    <height>637</height>
+    <width>731</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../mysqlproject/images/medicine.png</normaloff>../../mysqlproject/images/medicine.png</iconset>
+            <normaloff>../images/medicine.png</normaloff>../images/medicine.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -125,7 +125,7 @@
     <item row="1" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout">
@@ -779,7 +779,7 @@ QPushButton:hover{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>948</width>
+     <width>731</width>
      <height>21</height>
     </rect>
    </property>
