@@ -16,6 +16,12 @@ class Admin(QDialog, admin_ui.AdminUi):
         self.stackedWidget_6.setCurrentIndex(1)
         self.parent = parent
         self.connection = connection
+
+        self.set_comleter(0)
+        self.set_comleter(1)
+        # кнопки поиска
+        self.btn_69.clicked.connect(self.create_table_patients)
+        self.btn_70.clicked.connect(self.create_table_specialists)
         #обновление окон специалистов и специальностей
         self.tabWidget.currentChanged.connect(self.update_window)
 
@@ -59,6 +65,68 @@ class Admin(QDialog, admin_ui.AdminUi):
 
         # запуск фильтра
         self.btn_64.clicked.connect(self.window_filter)
+
+
+
+    def create_table_(self, flag):
+        cursor = self.connection.cursor()
+        if flag == 0:
+            fio = self.line_9.text().split(" ")
+            column = 7
+            procedure_id = 'call specialistid(%s, %s, %s)'
+            procedure_table = 'call get_patients(%s)'
+        else:
+            fio = self.line_10.text().split(" ")
+            column = 5
+            procedure_id = 'call patient_id(%s, %s, %s)'
+            procedure_table = 'call get_specialist(%s)'
+
+        self.name = fio[0]
+        self.surname = fio[1]
+        self.patronymic = fio[2]
+        cursor.execute(procedure_id, (self.name, self.surname, self.patronymic))
+        if flag == 0:
+            id = cursor.fetchall()[0].get('specialist_num')
+        else:
+            id = cursor.fetchall()[0].get('patient_num')
+        cursor.execute(procedure_table,
+                       (id))
+        create_table = CreateTable(self.tableWidget_2, cursor, column)
+        create_table.set_table()
+
+    def create_table_specialists(self):
+        self.create_table_(1)
+
+    def create_table_patients(self):
+        self.create_table_(0)
+
+    def set_comleter(self, flag):
+        """
+        Заполнение выпадающего списка специалистами и пациентами из БД
+        """
+        words = []  # массив слов для QComleter
+        cursor = self.connection.cursor()
+        if flag == 0:
+            cursor.execute("SELECT * FROM completer_specialist")  # view
+        else:
+            cursor.execute("select patient_name, patient_surname, patient_patronymic from patient")  # view
+
+        row = cursor.fetchone()
+        while row is not None:
+            word = ''
+            mass = list(row.items())
+            for i in range(len(mass)):
+                word += mass[i][1] + " "
+            words.append(word[:-1])
+            row = cursor.fetchone()
+
+        if flag == 0:
+            completer = QCompleter(words, self.line_9)
+            self.line_9.setCompleter(completer)
+        else:
+            completer = QCompleter(words, self.line_10)
+            self.line_10.setCompleter(completer)
+
 
     def window_filter(self):
         self.filter = FilterSpecialty(self, self.connection)
@@ -139,6 +207,15 @@ class Admin(QDialog, admin_ui.AdminUi):
         self.line_7.setText('')
         self.line_6.setText('')
         self.line_3.setText('')
+
+    def show_diagnosis(self):
+        """
+        Заполнение таблицы со специалистами
+        """
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT * from show_diagnosis")  # view
+        self.create_table = CreateTable(self.tableWidget_3, cursor, 4)
+        self.create_table.set_table()
 
     def show_specialist(self):
         """
@@ -247,6 +324,7 @@ class Admin(QDialog, admin_ui.AdminUi):
             self.stackedWidget.setCurrentIndex(2)
         else:
             self.stackedWidget.setCurrentIndex(0)
+            self.show_diagnosis()
 
     def return_back(self):
         """

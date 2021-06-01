@@ -61,7 +61,7 @@ class Patient(QMainWindow, patient_ui.PatientUi):
     def create_table(self):
 
         mass_datetime = self.datetime_specialist()
-        print(mass_datetime)
+
         self.stackedWidget.setCurrentIndex(1)
         now = QDateTime.currentDateTime()
         mass_time = now.toString(Qt.ISODate).split('T')
