@@ -38,6 +38,7 @@ class Admin(QDialog, admin_ui.AdminUi):
         # смена содержимого окна (специальности, специалисты)
         self.btn_8.clicked.connect(self.change_window)
         self.btn_11.clicked.connect(self.change_window)
+        self.btn_18.clicked.connect(self.change_window)
 
         # смена внутреннего tabwidget
         self.btn_5.clicked.connect(self.update_tabwidget)
@@ -71,6 +72,25 @@ class Admin(QDialog, admin_ui.AdminUi):
         # вызов окна премии
         self.btn_16.clicked.connect(self.window_premium)
 
+        self.plot()
+    def plot(self):
+        cursor = self.connection.cursor()
+        cursor.execute("Select diagnosis_name, diagnosis_count from diagnosis")
+        diagnosis = []
+        value = []
+        row = cursor.fetchone()
+
+        while row is not None:
+            diagnosis.append(row.get('diagnosis_name'))
+            value.append(int(row.get('diagnosis_count')))
+            row = cursor.fetchone()
+        self.figure.clear()
+        self.ax = self.figure.add_subplot(111)
+        self.ax.bar(diagnosis, value)
+        self.figure.autofmt_xdate(rotation=45)
+        self.figure.subplots_adjust(bottom=0.3)
+        self.canvas.draw()
+
     def window_premium(self):
         try:
             cursor = self.connection.cursor()
@@ -100,13 +120,15 @@ class Admin(QDialog, admin_ui.AdminUi):
             procedure_id = 'call patient_id(%s, %s, %s)'
             procedure_table = 'call get_specialist(%s)'
 
-        self.name = fio[0]
-        self.surname = fio[1]
+        self.surname = fio[0]
+        self.name = fio[1]
         self.patronymic = fio[2]
-        cursor.execute(procedure_id, (self.name, self.surname, self.patronymic))
+
         if flag == 0:
+            cursor.execute(procedure_id, (self.name, self.surname, self.patronymic))
             id = cursor.fetchall()[0].get('specialist_num')
         else:
+            cursor.execute(procedure_id, (self.surname, self.name, self.patronymic))
             id = cursor.fetchall()[0].get('patient_num')
         cursor.execute(procedure_table,
                        (id))

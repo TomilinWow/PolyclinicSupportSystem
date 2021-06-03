@@ -20,9 +20,11 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         # получение id пациента
         self.id_patient()
 
+
         self.btn_69.clicked.connect(self.create_table)
         self.btn_70.clicked.connect(self.show_specialists)
         self.btn_2.clicked.connect(self.create_table)
+        self.calendarWidget.clicked['QDate'].connect(self.create_table)
 
         self.btn_14.clicked.connect(self.recording_window)
 
@@ -45,8 +47,8 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         """
         try:
 
-            datetime = f"{self.table_4.item(self.table_4.currentRow(), 0).text()} " \
-                        f"{self.table_4.item(self.table_4.currentRow(), 1).text()}"
+            datetime = f"{self.date_string} " \
+                        f"{self.table_4.item(self.table_4.currentRow(), 0).text()}"
             fio = f"{self.surname} {self.name} {self.patronymic}"
             self.recording = Recording(self.connection, fio, datetime, self.id_sp, self.id_pt)
             self.recording.show()
@@ -59,48 +61,21 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         self.line_6.setText("")
 
     def create_table(self):
+        """
+        создание таблицы занятости специалиста
+        :param today: выбранное время на календаре
+        """
+        date = self.calendarWidget.selectedDate()
+        self.date_string = date.toString('yyyy-MM-dd')
 
-        mass_datetime = self.datetime_specialist()
-
+        self.id_sp = self.id_specialist()
         self.stackedWidget.setCurrentIndex(1)
-        now = QDateTime.currentDateTime()
-        mass_time = now.toString(Qt.ISODate).split('T')
-        hour = int(mass_time[1].split(':')[0])
-        today = datetime.date.today()
-        count_row = 0
-        self.table_4.setRowCount(0)
-        self.table_4.setColumnCount(3)
-        self.table_4.insertRow(0)
-        current_time = ''
-        for i in range(7):
-            current_time += today.strftime('%Y-%m-%d') + " "
-            for j in range(hour, 20):
-
-                item = QTableWidgetItem()
-                item.setText(today.strftime('%Y-%m-%d'))
-                self.table_4.setItem(count_row, 0, item)
-
-                item = QTableWidgetItem()
-                time = f"{j}:00:00"
-                item.setText(time)
-                current_time += f"{j}:00:00"
-                self.table_4.setItem(count_row, 1, item)
-                if current_time in mass_datetime:
-                    item = QTableWidgetItem()
-                    item.setBackground(Qt.red)
-                    self.table_4.setItem(count_row, 2, item)
-                count_row += 1
-                self.table_4.insertRow(count_row)
-                current_time = today.strftime('%Y-%m-%d') + " "
-            current_time = ''
-            hour = 9
-            today += datetime.timedelta(days=1)
-
+        create_table = CreateTable(self.table_4, id_specialist=self.id_sp, connection=self.connection)
+        create_table.create_table(self.date_string)
 
     def show_specialists(self):
         """
         Заполнение таблицы специалистами
-        :return:
         """
         cursor = self.connection.cursor()
         cursor.execute('call show_specialists(%s)',
@@ -109,21 +84,6 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         create_table = CreateTable(self.tableWidget, cursor, 4)
         create_table.set_table()
 
-    def datetime_specialist(self):
-        """
-        Формирование массива занятости специалиста
-        """
-        mass_datetime = []
-        cursor = self.connection.cursor()
-        self.id_sp = self.id_specialist()
-        cursor.execute("SELECT reception_datetime from reception where specialist_specialist_num = %s", (self.id_sp))
-        row = cursor.fetchone()
-        while row is not None:
-            mass = list(row.items())
-            mass_datetime.append(mass[0][1].strftime('%Y-%m-%d %H:%M:%S'))
-            row = cursor.fetchone()
-        return mass_datetime
-
     def id_specialist(self):
         """
         Получение id специалиста
@@ -131,13 +91,13 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         """
         if self.stackedWidget.currentIndex() == 2:
             num_row = self.tableWidget.currentRow()
-            self.name = self.tableWidget.item(num_row, 0).text()
-            self.surname = self.tableWidget.item(num_row, 1).text()
+            self.surname = self.tableWidget.item(num_row, 0).text()
+            self.name = self.tableWidget.item(num_row, 1).text()
             self.patronymic = self.tableWidget.item(num_row, 2).text()
         else:
             fio = self.line_5.text().split(" ")
-            self.name = fio[0]
-            self.surname = fio[1]
+            self.surname = fio[0]
+            self.name = fio[1]
             self.patronymic = fio[2]
 
         cursor = self.connection.cursor()

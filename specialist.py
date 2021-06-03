@@ -47,7 +47,6 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
 
         # запуск фильтра
         self.btn_64.clicked.connect(self.show_filter)
-        self.btn_65.clicked.connect(self.show_filter)
         self.btn_68.clicked.connect(self.show_filter)
 
         self.btn_69.clicked.connect(self.patient_guide)
@@ -157,7 +156,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
     def create_record(self):
 
         time = self.dateTimeEdit_2.dateTime()
-        time_string = time.toString(self.dateTimeEdit_2.displayFormat())
+        time_string = time.toString("yyyy-MM-dd hh:mm:ss")
 
         self.cursor = self.connection.cursor()
         self.cursor.execute("INSERT INTO reception_result (reception_result_date, "
@@ -193,7 +192,6 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         else:
             fio = self.fio.split(" ")
         initials = ' '.join(fio)
-        print(initials)
         cursor = self.connection.cursor()
         cursor.execute('call r_patient(%s, %s, %s)',
                        (fio[0], fio[1], fio[2]))
@@ -221,8 +219,8 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.stackedWidget.setCurrentIndex(0)
         self.stackedWidget_2.setCurrentIndex(1)
         cursor = self.connection.cursor()
-        cursor.execute('call records_patient(%s)',
-                       (self.id_patient))
+        cursor.execute('call records_patient(%s, %s)',
+                       (self.id_patient, self.specialist_id))
         create_table = CreateTable(self.table_5, cursor, 2)
         create_table.set_table()
 

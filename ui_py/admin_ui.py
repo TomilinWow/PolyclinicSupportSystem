@@ -1,5 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 class AdminUi(object):
     def setupUi(self, Dialog):
@@ -156,6 +160,11 @@ class AdminUi(object):
         self.gridLayout_14.setObjectName("gridLayout_14")
         self.widget_2 = QtWidgets.QWidget(self.tab_3)
         self.widget_2.setObjectName("widget_2")
+        self.wid = QVBoxLayout(self.widget_2)
+        self.figure = plt.figure()
+        self.ax = self.figure.add_subplot(111)
+        self.canvas = FigureCanvas(self.figure)
+        self.wid.addWidget(self.canvas)
         self.gridLayout_14.addWidget(self.widget_2, 0, 0, 1, 1)
         self.tabWidget_2.addTab(self.tab_3, "")
         self.tab = QtWidgets.QWidget()

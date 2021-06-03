@@ -81,7 +81,7 @@ class Diagnosis(QDialog, Ui_Dialog):
 
     def new_diagnosis(self):
         cursor = self.connection.cursor()
-        cursor.execute("INSERT INTO diagnosis (diagnosis_name) values (%s)", (self.lineEdit.text()))
+        cursor.execute("INSERT INTO diagnosis (diagnosis_name, diagnosis_count) values (%s, %s)", (self.lineEdit.text(), 0))
         self.connection.commit()
         self.lineEdit.setText('')
         self.close()

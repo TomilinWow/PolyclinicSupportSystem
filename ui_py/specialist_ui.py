@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import datetime
 
 class SpecialistUi(object):
     def setupUi(self, MainWindow):
@@ -339,6 +339,10 @@ class SpecialistUi(object):
         self.dateTimeEdit_2.setMinimumSize(QtCore.QSize(180, 0))
         self.dateTimeEdit_2.setAlignment(QtCore.Qt.AlignCenter)
         self.dateTimeEdit_2.setObjectName("dateTimeEdit_2")
+        self.dateTimeEdit_2.setDisplayFormat("yyyy-MM-dd hh:mm:ss")
+
+        self.dateTimeEdit_2.setDateTime(datetime.datetime.now())
+
         self.verticalLayout_14.addWidget(self.dateTimeEdit_2)
         self.horizontalLayout_7.addLayout(self.verticalLayout_14)
         spacerItem11 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -694,6 +698,7 @@ class SpecialistUi(object):
         self.dateTimeEdit.setProperty("showGroupSeparator", False)
         self.dateTimeEdit.setTimeSpec(QtCore.Qt.LocalTime)
         self.dateTimeEdit.setObjectName("dateTimeEdit")
+        self.dateTimeEdit.setDisplayFormat("yyyy-MM-dd hh:mm:ss")
         self.horizontalLayout_14.addWidget(self.dateTimeEdit)
         self.gridLayout_6.addLayout(self.horizontalLayout_14, 1, 0, 1, 1)
         self.horizontalLayout_20.addLayout(self.gridLayout_6)

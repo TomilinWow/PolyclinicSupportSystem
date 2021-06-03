@@ -56,7 +56,7 @@ class Registration(QDialog, registration_ui.RegistrationUi):
                             (self.line_6.text(), self.line_3.text(), 2))
         self.connection.commit()
         self.label_9.setText("Вы добавлены!!!\nВоспользуйтесь логином и паролем, чтобы войти в систему")
-        self.clear_line()
+        # self.clear_line()
 
     def return_back(self):
         """
