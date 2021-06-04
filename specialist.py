@@ -61,6 +61,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.btn_17.clicked.connect(self.patient_guide)
         self.btn_4.clicked.connect(self.add_record)
 
+        self.calendarWidget.clicked['QDate'].connect(self.create_table)
 
     def add_record(self):
         time = self.dateTimeEdit.dateTime()
@@ -78,60 +79,19 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         self.connection.commit()
         self.label_34.setText("Запись добавлена")
 
-    """
-    Обязательно изменить!!!
-    """
-    def datetime_specialist(self):
-        """
-        Формирование массива занятости специалиста
-        """
-        mass_datetime = []
-        cursor = self.connection.cursor()
-        cursor.execute("SELECT reception_datetime from reception where specialist_specialist_num = %s", (self.specialist_id))
-        row = cursor.fetchone()
-        while row is not None:
-            mass = list(row.items())
-            mass_datetime.append(mass[0][1].strftime('%Y-%m-%d %H:%M:%S'))
-            row = cursor.fetchone()
-        return mass_datetime
 
     def create_table(self):
-
-        mass_datetime = self.datetime_specialist()
-
+        """
+        создание таблицы занятости специалиста
+        :param today: выбранное время на календаре
+        """
+        date = self.calendarWidget.selectedDate()
+        self.date_string = date.toString('yyyy-MM-dd')
         self.stackedWidget.setCurrentIndex(0)
-        now = QDateTime.currentDateTime()
-        mass_time = now.toString(Qt.ISODate).split('T')
-        hour = int(mass_time[1].split(':')[0])
-        today = datetime.date.today()
-        count_row = 0
-        self.table_4.setRowCount(0)
-        self.table_4.setColumnCount(3)
-        self.table_4.insertRow(0)
-        current_time = ''
-        for i in range(7):
-            current_time += today.strftime('%Y-%m-%d') + " "
-            for j in range(hour, 20):
+        self.stackedWidget_2.setCurrentIndex(4)
+        create_table = CreateTable(self.table_4, id_specialist=self.specialist_id, connection=self.connection)
+        create_table.create_table(self.date_string)
 
-                item = QTableWidgetItem()
-                item.setText(today.strftime('%Y-%m-%d'))
-                self.table_4.setItem(count_row, 0, item)
-
-                item = QTableWidgetItem()
-                time = f"{j}:00:00"
-                item.setText(time)
-                current_time += f"{j}:00:00"
-                self.table_4.setItem(count_row, 1, item)
-                if current_time in mass_datetime:
-                    item = QTableWidgetItem()
-                    item.setBackground(Qt.red)
-                    self.table_4.setItem(count_row, 2, item)
-                count_row += 1
-                self.table_4.insertRow(count_row)
-                current_time = today.strftime('%Y-%m-%d') + " "
-            current_time = ''
-            hour = 9
-            today += datetime.timedelta(days=1)
 
     def go_to_patient(self):
         try:
