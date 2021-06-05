@@ -18,6 +18,7 @@
 
 + Данная система пока что использует localhost, поэтому необходимо воссоздать всю БД у себя на компьютере - файлы БД находятся в папке sql.
 + Связь приложения с БД осуществляется в файле connect_db.py, проверьте все ли у вас совпадает (user и password замените на свои)
++ Установка необходимых библиотек. -----> "pip install -r requirements.txt"
 ```python
 self.connection = pymysql.connect(
                 host="localhost",
@@ -28,4 +29,4 @@ self.connection = pymysql.connect(
                 cursorclass=pymysql.cursors.DictCursor
             )
 ```
-+ И наконец запуск. Система запускается с помощью main.py.
++ И наконец запуск. Система запускается с помощью main.py либо с помощью HospitalSystem.exe
