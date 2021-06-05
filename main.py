@@ -1,22 +1,21 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
-from PyQt5.QtCore import QPropertyAnimation
-import sys
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import QtWidgets
 from ui_py import ui
-import pymysql
 from admin import Admin
 from patient import Patient
 from specialist import Specialist
 from error import Error
 from PyQt5.QtCore import Qt
 from registration import Registration
-
+from connect_db import ConnectDb
+import sys
 
 class MainWindow(QMainWindow, ui.Dialog):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.connect_db()
+        self.connect = ConnectDb()
+        self.connection = self.connect.connect_db()
         # self.clear_db()
         self.pushButton.clicked.connect(self.check_user)
         self.pushButton_2.clicked.connect(self.close)
@@ -86,23 +85,6 @@ class MainWindow(QMainWindow, ui.Dialog):
         else:
             self.error_window(1)
 
-
-    def connect_db(self):
-        """
-        Установка связи с базой данных (self.connection)
-        """
-        try:
-            self.connection = pymysql.connect(
-                host="localhost",
-                port=3306,
-                user='root',
-                password='user',
-                database='hospital',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-
-        except Exception as ex:
-            pass
 
     def specialist_window(self, login):
         """
