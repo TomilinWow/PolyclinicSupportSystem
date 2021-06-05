@@ -81,6 +81,10 @@ class Admin(QDialog, admin_ui.AdminUi):
 
 
     def plot(self):
+        """
+        Построение гистограммы диагнозов
+        :return:
+        """
         cursor = self.connection.cursor()
         cursor.execute("Select diagnosis_name, diagnosis_count from diagnosis")
         diagnosis = []
@@ -99,6 +103,9 @@ class Admin(QDialog, admin_ui.AdminUi):
         self.canvas.draw()
 
     def window_premium(self):
+        """
+        Вызов окна назначения премии специалисту
+        """
         try:
             cursor = self.connection.cursor()
             row = self.table_3.currentRow()
@@ -109,12 +116,16 @@ class Admin(QDialog, admin_ui.AdminUi):
             id = cursor.fetchall()[0].get('specialist_num')
             salary = self.table_3.item(row, 7).text()
         except Exception as ex:
-            print(ex)
+            self.error = Error(self, 'Ошибка')
             return
         self.premium = Premium(self.connection, fio, id, salary)
         self.premium.show()
 
     def create_table_(self, flag):
+        """
+        Создание таблиц специалистов и пациентов в зависимости от флага
+        :param flag: значение - пациент или специалист
+        """
         cursor = self.connection.cursor()
         if flag == 0:
             fio = self.line_9.text().split(" ")
