@@ -1,5 +1,6 @@
 from ui_py import registration_ui
 from PyQt5.QtWidgets import QDialog
+from error import Error
 import string
 import random
 
@@ -29,34 +30,43 @@ class Registration(QDialog, registration_ui.RegistrationUi):
         self.line_6.setText(login)
         self.line_3.setText(password)
 
-    def add_patient(self):
 
+    def add_patient(self):
+        """
+        Добавление пациента в БД
+        """
         self.cursor = self.connection.cursor()
-        self.cursor.execute("SELECT count(patient_num) from patient")
-        count = self.cursor.fetchall()[0].get('count(patient_num)')
-        # Добавление специалиста
-        self.cursor.execute("INSERT INTO patient (patient_num, patient_date, "
-                            "patient_mail, patient_phone, "
-                            "patient_name, patient_surname, "
-                            "patient_patronymic, patient_login, "
-                            "patient_password) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                            (count + 1,
-                            self.line_8.text(),
-                             self.line_7.text(),
-                             self.line_4.text(),
-                             self.line_2.text(),
-                             self.line_5.text(),
-                             self.line.text(),
-                             self.line_6.text(),
-                             self.line_3.text())
-                            )
+        try:
+            self.cursor.execute("SELECT count(patient_num) from patient")
+            count = self.cursor.fetchall()[0].get('count(patient_num)')
+            # Добавление специалиста
+            self.cursor.execute("INSERT INTO patient (patient_num, patient_date, "
+                                "patient_mail, patient_phone, "
+                                "patient_name, patient_surname, "
+                                "patient_patronymic, patient_login, "
+                                "patient_password) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (count + 1,
+                                self.line_8.text(),
+                                 self.line_7.text(),
+                                 self.line_4.text(),
+                                 self.line_2.text(),
+                                 self.line_5.text(),
+                                 self.line.text(),
+                                 self.line_6.text(),
+                                 self.line_3.text())
+                                )
+        except Exception:
+            self.error = Error(self, 'Некорректные данные в полях, попробуйте снова')
+            self.clear_line()
+            self.clear_line_specialty()
+            return
 
         # добавление аккаунта в user
         self.cursor.execute("INSERT INTO user (user_login, user_password, type) values(%s, %s, %s)",
                             (self.line_6.text(), self.line_3.text(), 2))
         self.connection.commit()
         self.label_9.setText("Вы добавлены!!!\nВоспользуйтесь логином и паролем, чтобы войти в систему")
-        # self.clear_line()
+        self.clear_line()
 
     def return_back(self):
         """
@@ -72,6 +82,8 @@ class Registration(QDialog, registration_ui.RegistrationUi):
         Очистка поля добавления пациента
         """
         self.label_9.setText("")
+        self.line_3.setText("")
+        self.line_6.setText("")
 
     def clear_line(self):
         """

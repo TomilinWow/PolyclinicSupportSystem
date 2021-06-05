@@ -1,13 +1,10 @@
+from PyQt5.QtWidgets import QMainWindow, QCompleter
 from PyQt5.QtCore import Qt
 from ui_py import specialist_ui
 from filter import Filter
-from PyQt5.QtWidgets import QMainWindow, QCompleter
-from PyQt5.QtCore import *
 from create_table import CreateTable
 from diagnosis import Diagnosis
-from PyQt5.QtCore import QDateTime, Qt
-import datetime
-from PyQt5.QtWidgets import *
+from error import Error
 
 class Specialist(QMainWindow, specialist_ui.SpecialistUi):
     def __init__(self, parent, connection, login):
@@ -48,7 +45,7 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         # запуск фильтра
         self.btn_64.clicked.connect(self.show_filter)
         self.btn_68.clicked.connect(self.show_filter)
-
+        # кнопки поиска
         self.btn_69.clicked.connect(self.patient_guide)
         self.pushButton.clicked.connect(self.patient_guide)
 
@@ -60,22 +57,44 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
 
         self.btn_17.clicked.connect(self.patient_guide)
         self.btn_4.clicked.connect(self.add_record)
+        self.btn_16.clicked.connect(self.change_page)
 
+        # смена графика специалиста при нажатии на дату календаря
         self.calendarWidget.clicked['QDate'].connect(self.create_table)
+
+        self.line_2.textChanged.connect(self.clear_label)
+
+    def clear_label(self):
+        """
+        Очистка label при взаимодействии с полем id пациента
+        """
+        self.label_34.setText("")
+
+    def change_page(self):
+        """
+        переход на страницу добавления записи
+        :return:
+        """
+        self.stackedWidget_2.setCurrentIndex(2)
 
     def add_record(self):
         time = self.dateTimeEdit.dateTime()
         time_string = time.toString(self.dateTimeEdit.displayFormat())
 
         self.cursor = self.connection.cursor()
-        self.cursor.execute("INSERT INTO reception (reception_datetime, "
-                            "description, patient_patient_num, "
-                            "specialist_specialist_num) values (%s, %s, %s, %s)",
-                            (time_string,
-                             self.text_edit.toPlainText(),
-                             self.line_2.text(),
-                             self.specialist_id
-                             ))
+        try:
+            self.cursor.execute("INSERT INTO reception (reception_datetime, "
+                                "description, patient_patient_num, "
+                                "specialist_specialist_num) values (%s, %s, %s, %s)",
+                                (time_string,
+                                 self.text_edit.toPlainText(),
+                                 self.line_2.text(),
+                                 self.specialist_id
+                                 ))
+        except Exception:
+            self.error = Error(self, 'Заполните поля')
+            return
+
         self.connection.commit()
         self.label_34.setText("Запись добавлена")
 
@@ -102,6 +121,9 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         return mass
 
     def show_patients(self):
+        """
+        Построение таблицы пацентов специалиста
+        """
         cursor = self.connection.cursor()
         cursor.execute('call show_patients_ver_2(%s)',
                        (self.specialist_id))
@@ -109,26 +131,38 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         create_table.set_table()
 
     def diagnosis_id(self):
+        """
+        Извлечение id диагноза по введенному слову в поле
+        """
         cursor = self.connection.cursor()
         cursor.execute('select diagnosis_num from diagnosis where diagnosis_name = %s', (self.lineEdit_2.text()))
         return cursor.fetchall()[0].get('diagnosis_num')
 
     def create_record(self):
+        """
+        Создание записи приема
+        """
+        try:
+            time = self.dateTimeEdit_2.dateTime()
+            time_string = time.toString("yyyy-MM-dd hh:mm:ss")
 
-        time = self.dateTimeEdit_2.dateTime()
-        time_string = time.toString("yyyy-MM-dd hh:mm:ss")
+            self.cursor = self.connection.cursor()
+            self.cursor.execute("INSERT INTO reception_result (reception_result_date, "
+                                "reception_result_info, specialist_specialist_num, "
+                                "patient_patient_num, diagnosis_diagnosis_num) values (%s, %s, %s, %s, %s)",
+                                (time_string,
+                                 self.textEdit_4.toPlainText(),
+                                 self.specialist_id,
+                                 self.id_patient,
+                                 self.diagnosis_id(),
+                                ))
 
-        self.cursor = self.connection.cursor()
-        self.cursor.execute("INSERT INTO reception_result (reception_result_date, "
-                            "reception_result_info, specialist_specialist_num, "
-                            "patient_patient_num, diagnosis_diagnosis_num) values (%s, %s, %s, %s, %s)",
-                            (time_string,
-                             self.textEdit_4.toPlainText(),
-                             self.specialist_id,
-                             self.id_patient,
-                             self.diagnosis_id(),
-                            ))
-
+        except AttributeError:
+            self.error = Error(self, 'Выберите пациента для записи(в поиске)')
+            return
+        except Exception:
+            self.error = Error(self, 'Ошибка')
+            return
         self.connection.commit()
         self.label_43.setText("Запись сохранена")
 
@@ -171,19 +205,22 @@ class Specialist(QMainWindow, specialist_ui.SpecialistUi):
         """
         Окно с информацией пациента
         """
-        if self.stackedWidget_2.currentIndex() == 0:
-            self.patient_id(0)
+        try:
+            if self.stackedWidget_2.currentIndex() == 0:
+                self.patient_id(0)
+                return
+
+            self.patient_id(1)
+            self.stackedWidget.setCurrentIndex(0)
+            self.stackedWidget_2.setCurrentIndex(1)
+            cursor = self.connection.cursor()
+            cursor.execute('call records_patient(%s, %s)',
+                           (self.id_patient, self.specialist_id))
+            create_table = CreateTable(self.table_5, cursor, 2)
+            create_table.set_table()
+        except Exception:
+            self.error = Error(self, 'Поиск ничего не нашел, попробуйте снова')
             return
-
-        self.patient_id(1)
-        self.stackedWidget.setCurrentIndex(0)
-        self.stackedWidget_2.setCurrentIndex(1)
-        cursor = self.connection.cursor()
-        cursor.execute('call records_patient(%s, %s)',
-                       (self.id_patient, self.specialist_id))
-        create_table = CreateTable(self.table_5, cursor, 2)
-        create_table.set_table()
-
 
     def set_completer(self, flag):
         """

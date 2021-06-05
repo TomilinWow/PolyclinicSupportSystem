@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog
 
-import datetime
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -66,6 +65,10 @@ class Filter(QDialog, Ui_Dialog):
         self.pushButton.clicked.connect(self.accept_value)
 
     def accept_value(self):
+        """
+        Извлечение записей во временном диапазоне (преобразование времен к строковому виду и
+        запуск метода создания таблицы)
+        """
         first_time  = self.dateTimeEdit.dateTime()
         second_time = self.dateTimeEdit_2.dateTime()
         first_time_string = first_time.toString(self.dateTimeEdit.displayFormat())

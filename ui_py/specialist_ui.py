@@ -699,6 +699,8 @@ class SpecialistUi(object):
         self.dateTimeEdit.setTimeSpec(QtCore.Qt.LocalTime)
         self.dateTimeEdit.setObjectName("dateTimeEdit")
         self.dateTimeEdit.setDisplayFormat("yyyy-MM-dd hh:mm:ss")
+
+        self.dateTimeEdit.setDateTime(datetime.datetime.now())
         self.horizontalLayout_14.addWidget(self.dateTimeEdit)
         self.gridLayout_6.addLayout(self.horizontalLayout_14, 1, 0, 1, 1)
         self.horizontalLayout_20.addLayout(self.gridLayout_6)

@@ -3,9 +3,10 @@ from ui_py import recording_ui
 
 
 class Recording(QDialog, recording_ui.RecordingUi):
-    def __init__(self, connection, fio, datetime, id_specialist, id_patient):
+    def __init__(self, parent, connection, fio, datetime, id_specialist, id_patient):
         super().__init__()
         self.setupUi(self)
+        self.parent = parent
         self.connection = connection
         self.fio = fio
         self.datetime = datetime
@@ -16,7 +17,9 @@ class Recording(QDialog, recording_ui.RecordingUi):
         self.btn_14.clicked.connect(self.create_record)
 
     def create_record(self):
-
+        """
+        Создание записи приема
+        """
         cursor = self.connection.cursor()
         cursor.execute("INSERT INTO reception (reception_datetime, "
                             "description, patient_patient_num, specialist_specialist_num"
@@ -39,6 +42,7 @@ class Recording(QDialog, recording_ui.RecordingUi):
             self.connection.commit()
         except Exception as ex:
             pass
+        self.parent.create_table()
 
     def clear_line(self):
 

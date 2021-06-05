@@ -32,6 +32,7 @@ class MainWindow(QMainWindow, ui.Dialog):
     #         cursor.execute("ALTER TABLE user AUTO_INCREMENT = 0")
     #         self.connection.commit()
     #
+
     def add(self):
         """
         Добавление записи в БД

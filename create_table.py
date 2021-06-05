@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtCore import Qt
-import datetime
+
 
 class CreateTable:
     def __init__(self, table, cursor=None, count_column=None, id_specialist=None, connection=None):

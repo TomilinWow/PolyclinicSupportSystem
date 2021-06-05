@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QCompleter
 from ui_py import patient_ui
-from PyQt5.QtCore import QDateTime, Qt
-import datetime
 from create_table import CreateTable
 from recording import Recording
+from error import Error
 
 
 class Patient(QMainWindow, patient_ui.PatientUi):
@@ -20,14 +18,17 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         # получение id пациента
         self.id_patient()
 
-
-        self.btn_69.clicked.connect(self.create_table)
+        # кнопки поиска специалистов
+        self.btn_69.clicked.connect(self.search_specialist)
         self.btn_70.clicked.connect(self.show_specialists)
-        self.btn_2.clicked.connect(self.create_table)
+        self.btn_2.clicked.connect(self.search_specialist)
+        # смена графика специалиста при нажатии на дату календаря
         self.calendarWidget.clicked['QDate'].connect(self.create_table)
 
+        # запуск окна записи
         self.btn_14.clicked.connect(self.recording_window)
 
+        # кнопки возвращения назад
         self.btn_19.clicked.connect(self.back)
         self.btn_20.clicked.connect(self.back)
         self.btn_36.clicked.connect(self.return_back)
@@ -43,22 +44,35 @@ class Patient(QMainWindow, patient_ui.PatientUi):
     def recording_window(self):
         """
         Запуск окна подтверждения записи
-        :return:
         """
         try:
 
             datetime = f"{self.date_string} " \
-                        f"{self.table_4.item(self.table_4.currentRow(), 0).text()}"
+                       f"{self.table_4.item(self.table_4.currentRow(), 0).text()}"
             fio = f"{self.surname} {self.name} {self.patronymic}"
-            self.recording = Recording(self.connection, fio, datetime, self.id_sp, self.id_pt)
+            self.recording = Recording(self, self.connection, fio, datetime, self.id_sp, self.id_pt)
             self.recording.show()
         except Exception as ex:
-           print(ex)
+            print(ex)
 
     def back(self):
+        """
+        Возрат на начальное меню
+        """
         self.stackedWidget.setCurrentIndex(0)
         self.line_5.setText("")
         self.line_6.setText("")
+
+    def search_specialist(self):
+        """
+        Извлечение id специалиста
+        """
+        try:
+            self.id_sp = self.id_specialist()
+        except Exception:
+            self.error = Error(self, 'Поиск ничего не нашел, попробуйте снова')
+            return
+        self.create_table()
 
     def create_table(self):
         """
@@ -67,8 +81,6 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         """
         date = self.calendarWidget.selectedDate()
         self.date_string = date.toString('yyyy-MM-dd')
-
-        self.id_sp = self.id_specialist()
         self.stackedWidget.setCurrentIndex(1)
         create_table = CreateTable(self.table_4, id_specialist=self.id_sp, connection=self.connection)
         create_table.create_table(self.date_string)
@@ -78,8 +90,12 @@ class Patient(QMainWindow, patient_ui.PatientUi):
         Заполнение таблицы специалистами
         """
         cursor = self.connection.cursor()
-        cursor.execute('call show_specialists(%s)',
-                       (self.line_6.text()))  # procedure
+        try:
+            cursor.execute('call show_specialists(%s)',
+                           (self.line_6.text()))  # procedure
+        except Exception:
+            self.error = Error(self, 'Поиск ничего не нашел, попробуйте снова')
+            return
         self.stackedWidget.setCurrentIndex(2)
         create_table = CreateTable(self.tableWidget, cursor, 4)
         create_table.set_table()

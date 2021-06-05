@@ -1,13 +1,10 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QDialog
+from PyQt5.QtWidgets import QDialog, QCompleter
 from PyQt5.QtCore import Qt
-import sys
 from ui_py import admin_ui
 from create_table import CreateTable
 from premium import Premium
 from filter_specialty import FilterSpecialty
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from error import Error
 
 
 class Admin(QDialog, admin_ui.AdminUi):
@@ -71,8 +68,18 @@ class Admin(QDialog, admin_ui.AdminUi):
 
         # вызов окна премии
         self.btn_16.clicked.connect(self.window_premium)
-
         self.plot()
+
+    def error_dialog(self, flag):
+        """
+        вызов окна ошибки
+        """
+        if flag == 1:
+            self.error = Error(self, 'Ничего не найдено, попробуйте снова')
+        elif flag == 0:
+            self.error = Error(self, 'Некорректные данные в полях, попробуйте снова')
+
+
     def plot(self):
         cursor = self.connection.cursor()
         cursor.execute("Select diagnosis_name, diagnosis_count from diagnosis")
@@ -120,18 +127,22 @@ class Admin(QDialog, admin_ui.AdminUi):
             procedure_id = 'call patient_id(%s, %s, %s)'
             procedure_table = 'call get_specialist(%s)'
 
-        self.surname = fio[0]
-        self.name = fio[1]
-        self.patronymic = fio[2]
+        try:
+            self.surname = fio[0]
+            self.name = fio[1]
+            self.patronymic = fio[2]
 
-        if flag == 0:
-            cursor.execute(procedure_id, (self.name, self.surname, self.patronymic))
-            id = cursor.fetchall()[0].get('specialist_num')
-        else:
-            cursor.execute(procedure_id, (self.surname, self.name, self.patronymic))
-            id = cursor.fetchall()[0].get('patient_num')
-        cursor.execute(procedure_table,
-                       (id))
+            if flag == 0:
+                cursor.execute(procedure_id, (self.name, self.surname, self.patronymic))
+                id = cursor.fetchall()[0].get('specialist_num')
+            else:
+                cursor.execute(procedure_id, (self.surname, self.name, self.patronymic))
+                id = cursor.fetchall()[0].get('patient_num')
+            cursor.execute(procedure_table,
+                           (id))
+        except Exception:
+            self.error_dialog(1)
+            return
         create_table = CreateTable(self.tableWidget_2, cursor, column)
         create_table.set_table()
 
@@ -243,31 +254,37 @@ class Admin(QDialog, admin_ui.AdminUi):
         Добавление нового специалиста в БД
         """
         self.cursor = self.connection.cursor()
+        try:
+            # Первоначальная ЗП
+            self.cursor.execute("SELECT count(salary_num) from salary")
+            count = self.cursor.fetchall()[0].get('count(salary_num)')
+            self.cursor.execute("INSERT INTO salary (salary_num, salary, premium) values (%s, %s, %s)", (count + 1, self.line_3.text(), 0))
+            self.connection.commit()
 
-        # Первоначальная ЗП
-        self.cursor.execute("SELECT count(salary_num) from salary")
-        count = self.cursor.fetchall()[0].get('count(salary_num)')
-        self.cursor.execute("INSERT INTO salary (salary_num, salary, premium) values (%s, %s, %s)", (count + 1, self.line_3.text(), 0))
-        self.connection.commit()
+            # Добавление специалиста
+            self.cursor.execute("INSERT INTO specialist (specialist_num, specialist_name, "
+                                "specialist_surname, specialist_patronymic, "
+                                "specialist_date, specialist_login, "
+                                "specialist_password, salary_salary_num) values (%s, %s, %s, %s, %s, %s, %s, %s)",
+                                (count + 1,
+                                 self.line_2.text(),
+                                 self.line_5.text(),
+                                 self.line.text(),
+                                 self.line_8.text(),
+                                 self.line_7.text(),
+                                 self.line_6.text(),
+                                 count + 1)
+                                )
 
-        # Добавление специалиста
-        self.cursor.execute("INSERT INTO specialist (specialist_num, specialist_name, "
-                            "specialist_surname, specialist_patronymic, "
-                            "specialist_date, specialist_login, "
-                            "specialist_password, salary_salary_num) values (%s, %s, %s, %s, %s, %s, %s, %s)",
-                            (count + 1,
-                             self.line_2.text(),
-                             self.line_5.text(),
-                             self.line.text(),
-                             self.line_8.text(),
-                             self.line_7.text(),
-                             self.line_6.text(),
-                             count + 1)
-                            )
-
-        self.connection.commit()
-        self.label_34.setText("Специалист добавлен")
-
+            self.connection.commit()
+            self.label_34.setText("Специалист добавлен")
+        except Exception as ex:
+            print(ex)
+            self.cursor.execute("DELETE FROM salary WHERE salary_num = (%s)", (count + 1))
+            self.connection.commit()
+            self.error_dialog(0)
+            self.clear_line_specialist()
+            return
         # добавление аккаунта в user
         self.cursor.execute("INSERT INTO user (user_login, user_password, type) values(%s, %s, %s)",
                             (self.line_7.text(), self.line_6.text(), 1))
@@ -330,6 +347,7 @@ class Admin(QDialog, admin_ui.AdminUi):
         self.stackedWidget_6.setCurrentIndex(0)  # смена окна в GUI
         if sender.text() == "Специалисты":
             self.stackedWidget.setCurrentIndex(1)
+            self.stackedWidget_2.setCurrentIndex(1)
         elif sender.text() == "Пациенты":
             self.stackedWidget.setCurrentIndex(2)
         else:
