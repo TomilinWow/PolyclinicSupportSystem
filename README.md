@@ -14,11 +14,12 @@
   5.  Статистика выписанных диагнозов
   6.  Просмотр различных таблиц с данными: специалисты системы, выписанные диагнозы и т.д.
 
+![Screenshot_1](https://user-images.githubusercontent.com/85018648/120901337-9b003780-c653-11eb-9303-82de9eb9f049.png)
+
 # Как протестировать?
 
 + Данная система пока что использует localhost, поэтому необходимо воссоздать всю БД у себя на компьютере - файлы БД находятся в папке sql.
 + Связь приложения с БД осуществляется в файле connect_db.py, проверьте все ли у вас совпадает (user и password замените на свои)
-+ Установка необходимых библиотек. -----> "pip install -r requirements.txt"
 ```python
 self.connection = pymysql.connect(
                 host="localhost",
@@ -29,4 +30,5 @@ self.connection = pymysql.connect(
                 cursorclass=pymysql.cursors.DictCursor
             )
 ```
++ Установка необходимых библиотек. -----> "pip install -r requirements.txt"
 + И наконец запуск. Система запускается с помощью main.py либо с помощью HospitalSystem.exe
